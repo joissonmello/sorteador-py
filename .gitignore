@@ -4,3 +4,5 @@
 .vscode
 .sorteador
 .staticfiles
+*pyc
+__pycache__

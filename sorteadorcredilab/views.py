@@ -13,7 +13,7 @@ class NotificacaoViewSet(views.APIView):
     def post(self, request):
         try:
             slack_web_client = WebClient(
-            'xoxb-1144156075730-1514950957397-k9LEhwdj8ABOwSigJt1IqKRi')
+            'xoxb-460405341186-2098420383619-ry83YkTrCuULS737hOIVlxAT')
 
             data = request.data.get('data')
             facilitador: Participante = Participante.objects.get(id=request.data.get('facilitador'))
@@ -33,7 +33,7 @@ class NotificacaoViewSet(views.APIView):
                                     "type": "section",
                                     "text": {
                                         "type": "mrkdwn",
-                                        "text": f"Próxima diária { data[8:] }/{ data[5:7] }/{ data[:4] } :tada:"
+                                        "text": f"Sorteados para a diária do dia { data[8:] }/{ data[5:7] }/{ data[:4] } :tada:"
                                     }
                                 },
                                 {

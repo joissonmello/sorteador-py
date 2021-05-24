@@ -110,10 +110,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-CORS_ORIGIN_REGEX_WHITELIST = (r'^chrome-extension://*', )
+# CORS_ORIGIN_REGEX_WHITELIST = (r'^chrome-extension://*', )
 
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:4200',
+    'https://sorteador-credilab-ng.herokuapp.com',
 )
 
 CORS_ALLOW_METHODS = (

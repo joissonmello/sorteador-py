@@ -28,6 +28,9 @@ class NotificacaoViewSet(views.APIView):
                     if channel_id:
                         message = {
                             "channel": channel_id,
+                            "link_names": True,
+                            "parse": "full",
+                            "username": f'@{ facilitador.nome_slack }',
                             "blocks": [
                                 {
                                     "type": "section",
@@ -40,7 +43,7 @@ class NotificacaoViewSet(views.APIView):
                                     "type": "section",
                                     "text": {
                                         "type": "mrkdwn",
-                                        "text": f"*Facilitador*: @{ facilitador.nome_slack }"
+                                        "text": f"*Facilitador*: <@{ self.get_user_by_username(slack_web_client, facilitador.nome_slack) }>"
                                     },
                                     "accessory": {
                                         "type": "image",
@@ -55,7 +58,7 @@ class NotificacaoViewSet(views.APIView):
                                     "type": "section",
                                     "text": {
                                         "type": "mrkdwn",
-                                        "text": f"*Secretário*: @{ secretario.nome_slack }"
+                                        "text": f"*Secretário*: <@{ self.get_user_by_username(slack_web_client, secretario.nome_slack) }>"
                                     },
                                     "accessory": {
                                         "type": "image",
@@ -70,3 +73,12 @@ class NotificacaoViewSet(views.APIView):
             return Response(True, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(False, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+    def get_user_by_username(self, slack_web_client, username):
+        users = slack_web_client.users_list()
+
+        for user in users.data.get('members'):
+            if user.get('real_name') == username:
+                return user.get('id')
+

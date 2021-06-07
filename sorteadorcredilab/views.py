@@ -30,7 +30,6 @@ class NotificacaoViewSet(views.APIView):
                             "channel": channel_id,
                             "link_names": True,
                             "parse": "full",
-                            "username": f'@{ facilitador.nome_slack }',
                             "blocks": [
                                 {
                                     "type": "section",
@@ -79,6 +78,6 @@ class NotificacaoViewSet(views.APIView):
         users = slack_web_client.users_list()
 
         for user in users.data.get('members'):
-            if user.get('real_name') == username:
+            if user.get('profile').get('display_name') == username:
                 return user.get('id')
 

@@ -78,6 +78,6 @@ class NotificacaoViewSet(views.APIView):
         users = slack_web_client.users_list()
 
         for user in users.data.get('members'):
-            if user.get('profile').get('display_name') == username:
+            if user.get('profile').get('display_name') == username or user.get('profile').get('real_name') == username:
                 return user.get('id')
 

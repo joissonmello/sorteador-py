@@ -13,7 +13,7 @@ class NotificacaoViewSet(views.APIView):
     def post(self, request):
         try:
             slack_web_client = WebClient(
-            'xoxb-460405341186-2098420383619-ry83YkTrCuULS737hOIVlxAT')
+            'xoxb-460405341186-2098420383619-ry83YkTrCuULS737hOIVlxATa')
 
             data = request.data.get('data')
             facilitador: Participante = Participante.objects.get(id=request.data.get('facilitador'))
@@ -46,7 +46,7 @@ class NotificacaoViewSet(views.APIView):
                                     },
                                     "accessory": {
                                         "type": "image",
-                                        "image_url": f"https://softfocus.com.br/avatares/{ facilitador.avatar }.jpg",
+                                        "image_url": f"https://softfocus.com.br/avatares/{ facilitador.avatar }",
                                         "alt_text": facilitador.nome
                                     }
                                 },
@@ -61,7 +61,7 @@ class NotificacaoViewSet(views.APIView):
                                     },
                                     "accessory": {
                                         "type": "image",
-                                        "image_url": f"https://softfocus.com.br/avatares/{ secretario.avatar }.jpg",
+                                        "image_url": f"https://softfocus.com.br/avatares/{ secretario.avatar }",
                                         "alt_text": secretario.nome
                                     }
                                 }

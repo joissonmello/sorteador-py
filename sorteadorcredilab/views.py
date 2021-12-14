@@ -13,7 +13,7 @@ class NotificacaoViewSet(views.APIView):
     def post(self, request):
         try:
             slack_web_client = WebClient(
-            'xoxb-460405341186-2098420383619-ry83YkTrCuULS737hOIVlxATa')
+            'xoxb-460405341186-2098420383619-ry83YkTrCuULS737hOIVlxAT')
 
             data = request.data.get('data')
             facilitador: Participante = Participante.objects.get(id=request.data.get('facilitador'))

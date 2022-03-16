@@ -1,3 +1,4 @@
+from sorteadorcredilab.settings import SLACK_TOKEN
 from sorteadorcredilab.sorteador.models import Participante
 from slack import WebClient
 from rest_framework.response import Response
@@ -12,8 +13,7 @@ class NotificacaoViewSet(views.APIView):
 
     def post(self, request):
         try:
-            slack_web_client = WebClient(
-            'xoxb-460405341186-2098420383619-ry83YkTrCuULS737hOIVlxAT')
+            slack_web_client = WebClient(SLACK_TOKEN)
 
             data = request.data.get('data')
             facilitador: Participante = Participante.objects.get(id=request.data.get('facilitador'))

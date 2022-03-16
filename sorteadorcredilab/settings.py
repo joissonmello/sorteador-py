@@ -28,6 +28,8 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=[], cast=Csv())
 
+SLACK_TOKEN = config('SLACK_TOKEN')
+
 
 # Application definition
 
@@ -115,6 +117,7 @@ AUTH_PASSWORD_VALIDATORS = [
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:4200',
     'https://sorteador-credilab-ng.herokuapp.com',
+    'https://sorteador-proagrolab-ng.herokuapp.com',
 )
 
 CORS_ALLOW_METHODS = (

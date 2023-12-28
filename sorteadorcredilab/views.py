@@ -6,7 +6,6 @@ from rest_framework import views, status
 
 
 class NotificacaoViewSet(views.APIView):
-
     @classmethod
     def get_extra_actions(cls):
         return []
@@ -20,7 +19,8 @@ class NotificacaoViewSet(views.APIView):
             secretario: Participante = Participante.objects.get(id=request.data.get('secretario'))
 
             channel_id = ''
-            channels = slack_web_client.conversations_list()
+            channels = slack_web_client.conversations_list(limit=500)
+            users = slack_web_client.users_list()
             for channel in channels['channels']:
                 if channel['is_member']:
                     channel_id = channel['id']
@@ -42,11 +42,11 @@ class NotificacaoViewSet(views.APIView):
                                     "type": "section",
                                     "text": {
                                         "type": "mrkdwn",
-                                        "text": f"*Facilitador*: <@{ self.get_user_by_username(slack_web_client, facilitador.nome_slack) }>"
+                                        "text": f"*Facilitador*: <@{ self.get_user_by_username(users, facilitador.nome_slack) }>"
                                     },
                                     "accessory": {
                                         "type": "image",
-                                        "image_url": f"https://softfocus.com.br/avatares/{ facilitador.avatar }",
+                                        "image_url": facilitador.avatar,
                                         "alt_text": facilitador.nome
                                     }
                                 },
@@ -57,11 +57,11 @@ class NotificacaoViewSet(views.APIView):
                                     "type": "section",
                                     "text": {
                                         "type": "mrkdwn",
-                                        "text": f"*Secretário*: <@{ self.get_user_by_username(slack_web_client, secretario.nome_slack) }>"
+                                        "text": f"*Secretário*: <@{ self.get_user_by_username(users, secretario.nome_slack) }>"
                                     },
                                     "accessory": {
                                         "type": "image",
-                                        "image_url": f"https://softfocus.com.br/avatares/{ secretario.avatar }",
+                                        "image_url": secretario.avatar,
                                         "alt_text": secretario.nome
                                     }
                                 }
@@ -74,9 +74,7 @@ class NotificacaoViewSet(views.APIView):
             return Response(False, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-    def get_user_by_username(self, slack_web_client, username):
-        users = slack_web_client.users_list()
-
+    def get_user_by_username(self, users, username):
         for user in users.data.get('members'):
             if user.get('profile').get('display_name') == username or user.get('profile').get('real_name') == username:
                 return user.get('id')

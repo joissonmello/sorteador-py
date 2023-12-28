@@ -18,7 +18,8 @@ itsdangerous==1.1.0
 Jinja2==2.11.2
 MarkupSafe==1.1.1
 multidict==5.0.2
-psycopg2==2.8.6
+propcache==0.2.0
+psycopg2-binary==2.9.10
 pyee==7.0.4
 python-decouple==3.4
 pytz==2020.4
@@ -28,4 +29,4 @@ sqlparse==0.4.1
 typing-extensions==3.7.4.3
 Werkzeug==1.0.1
 whitenoise==5.2.0
-yarl==1.6.3
+yarl==1.18.0

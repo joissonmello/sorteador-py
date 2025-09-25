@@ -12,6 +12,7 @@ class NotificacaoViewSet(views.APIView):
 
     def post(self, request):
         try:
+            # get slack token
             slack_web_client = WebClient(SLACK_TOKEN)
 
             data = request.data.get('data')

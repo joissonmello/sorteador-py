@@ -117,8 +117,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:4200',
-    'https://sorteador-credilab-ng.herokuapp.com',
-    'https://sorteador-proagrolab-ng.herokuapp.com',
+    'https://sorteador-ng.vercel.app'
 )
 
 CORS_ALLOW_METHODS = (

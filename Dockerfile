@@ -1,40 +1,45 @@
-# Stage 1 — builder
+# Dockerfile multistage para Django + Poetry (Python 3.12)
+# Ajuste WSGI_MODULE abaixo conforme o caminho do seu projeto Django, ex: "sorteadorcredilab.wsgi:application"
+
+# -----------------------
+# Stage 1: builder
+# -----------------------
 FROM python:3.12-slim AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    POETRY_VIRTUALENVS_CREATE=false \
-    POETRY_NO_INTERACTION=1 \
-    LANG=C.UTF-8
+    LANG=C.UTF-8 \
+    TZ=UTC
 
-# Dependências do sistema necessárias para compilar pacotes e psycopg2
+# Dependências do sistema para build
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
     git \
     libpq-dev \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copia apenas os arquivos de dependências primeiro (cache do Docker)
-COPY requirements.txt /app/
+# Copiar apenas as definições de dependência para alavancar cache do Docker
+COPY pyproject.toml poetry.lock* /app/
 
-# Instala poetry e exporta requirements.txt
-RUN pip install --upgrade pip setuptools wheel
+# Garantir pip/setuptools compatíveis e instalar poetry
+RUN python -m pip install --upgrade pip setuptools wheel
 
-# Instala dependências em /opt/venv (isolado)
+# Criar virtualenv e instalar dependências
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
+
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia o código da aplicação
+# Copiar código da aplicação (agora que dependências estão instaladas)
 COPY . /app
 
-# (Opcional) coletar static no builder (se suas settings permitirem sem variáveis runtime)
-# RUN python manage.py collectstatic --noinput
-
-# Stage 2 — runtime
+# -----------------------
+# Stage 2: runtime
+# -----------------------
 FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -43,31 +48,29 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PATH="/opt/venv/bin:$PATH" \
     PORT=8000
 
-# Dependências runtime (bibliotecas do sistema)
+# Instalar runtime libs mínimas
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Criar diretório da aplicação
 WORKDIR /app
 
-# Copiar venv do builder
+# Copiar virtualenv e aplicação do builder
 COPY --from=builder /opt/venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-
-# Copiar código da aplicação
 COPY --from=builder /app /app
 
-# Criar usuário não-root
-RUN adduser --disabled-password --gecos "" appuser && chown -R appuser:appuser /app
+# Definir permissões e usuário não-root (chmod e chown executados como root)
+# Ajuste o nome do entrypoint se for diferente
+RUN adduser --disabled-password --gecos "" appuser \
+    && chown -R appuser:appuser /app \
+    && chmod +x /app/docker-entrypoint.sh || true
+
+# Trocar para usuário não-root
 USER appuser
 
-# Expor porta
 EXPOSE 8000
 
-# Entrypoint que aplica migrations e collectstatic antes de iniciar o servidor
-# OBS: Ajuste o caminho do WSGI (ex: "config.wsgi:application") conforme seu projeto.
-COPY ./docker-entrypoint.sh /app/docker-entrypoint.sh
-RUN chmod +x /app/docker-entrypoint.sh
-
+# OBS: ajuste o WSGI_MODULE caso seu wsgi esteja em outro pacote.
+# Exemplo abaixo usa: sorteadorcredilab.wsgi:application
 CMD ["/app/docker-entrypoint.sh"]

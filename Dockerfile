@@ -22,9 +22,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Copiar apenas as definições de dependência para alavancar cache do Docker
-COPY pyproject.toml poetry.lock* /app/
-
 # Garantir pip/setuptools compatíveis e instalar poetry
 RUN python -m pip install --upgrade pip setuptools wheel
 

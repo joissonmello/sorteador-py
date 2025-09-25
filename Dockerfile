@@ -1,42 +1,39 @@
-# Dockerfile multistage para Django + Poetry (Python 3.12)
-# Ajuste WSGI_MODULE abaixo conforme o caminho do seu projeto Django, ex: "sorteadorcredilab.wsgi:application"
-
-# -----------------------
-# Stage 1: builder
-# -----------------------
+# Stage 1 — builder
 FROM python:3.12-slim AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    LANG=C.UTF-8 \
-    TZ=UTC
+    LANG=C.UTF-8
 
-# Dependências do sistema para build
+# Dependências do sistema necessárias para compilar pacotes e psycopg2
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
     git \
     libpq-dev \
-    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Garantir pip/setuptools compatíveis e instalar poetry
-RUN python -m pip install --upgrade pip setuptools wheel
+# Copia apenas os arquivos de dependências primeiro (cache do Docker)
+COPY requirements.txt /app/
 
-# Criar virtualenv e instalar dependências
+# Instala poetry e exporta requirements.txt
+RUN pip install --upgrade pip setuptools wheel
+
+# Instala dependências em /opt/venv (isolado)
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
-
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar código da aplicação (agora que dependências estão instaladas)
+# Copia o código da aplicação
 COPY . /app
 
-# -----------------------
-# Stage 2: runtime
-# -----------------------
+# (Opcional) coletar static no builder (se suas settings permitirem sem variáveis runtime)
+# RUN python manage.py collectstatic --noinput
+
+# Stage 2 — runtime
+# ----------------------
 FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
